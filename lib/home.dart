@@ -5,6 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:food_reciepe/model.dart';
 
+import 'search.dart';
+
+import 'recipeView.dart';
+
 import 'package:http/http.dart';
 import 'dart:developer' as dev; // for log
 
@@ -46,17 +50,35 @@ A Positioned widget must be a descendant of a Stack, and the path from the Posit
 //         ),
 
 class _HomeState extends State<Home> {
+  bool isloading = true;
   List<recipeModel> reciepeList = <recipeModel>[];
   TextEditingController contrl = new TextEditingController();
-  List reciptCatList = [{"imgUrl": "https://images.unsplash.com/photo-1593560704563-f176a2eb61db", "heading": "Chilli Food"},{"imgUrl": "https://images.unsplash.com/photo-1593560704563-f176a2eb61db", "heading": "Chilli Food"},{"imgUrl": "https://images.unsplash.com/photo-1593560704563-f176a2eb61db", "heading": "Chilli Food"},{"imgUrl": "https://images.unsplash.com/photo-1593560704563-f176a2eb61db", "heading": "Chilli Food"}];
+  List reciptCatList = [
+    {
+      "imgUrl": "https://images.unsplash.com/photo-1593560704563-f176a2eb61db",
+      "heading": "Chilli Food"
+    },
+    {
+      "imgUrl": "https://images.unsplash.com/photo-1593560704563-f176a2eb61db",
+      "heading": "Chilli Food"
+    },
+    {
+      "imgUrl": "https://images.unsplash.com/photo-1593560704563-f176a2eb61db",
+      "heading": "Chilli Food"
+    },
+    {
+      "imgUrl": "https://images.unsplash.com/photo-1593560704563-f176a2eb61db",
+      "heading": "Chilli Food"
+    }
+  ];
 
   void getReciepe(String query) async {
     // api data fetching
     String url =
         "https://api.edamam.com/search?q=$query&app_id=88efa4aa&app_key=525529fd656402164a352aecd61e9670&from=0&to=3&calories=591-722&health=alcohol-free";
 
-    Response res = await get(Uri.parse(url));
-    Map data = jsonDecode(res.body);
+    Response res = await get(Uri.parse(url)); // to get data from api
+    Map data = jsonDecode(res.body); // convert raw data in json format
 
     // print statement have limited length of string so use log log can be from math  as well as developer package so it is important to use metntion as i did
     //       input { map ,object ,string ,any} => [model] =>  output return {map ,object, string ,any}
@@ -64,7 +86,9 @@ class _HomeState extends State<Home> {
     // dev.log(data.toString());
 
     // hits have map
+    // in this particular api it have hits as a map having multiple recipe
     data['hits'].forEach((elent) {
+      // iteration
       // you can give any name in place of elemenent
       recipeModel recp = new recipeModel();
       recp = recipeModel.fromMap(elent[
@@ -76,6 +100,9 @@ class _HomeState extends State<Home> {
     reciepeList.forEach((element) {
       // forEach is a method to iterate the list where every child  is represented as element
       print(element.label);
+    });
+    setState(() {
+      isloading = false;
     });
   }
 
@@ -94,6 +121,7 @@ class _HomeState extends State<Home> {
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Color(0xff071938),
     ));
+
     return SafeArea(
       child: Scaffold(
           body: Stack(
@@ -132,7 +160,11 @@ class _HomeState extends State<Home> {
                         if ((contrl.text).replaceAll(" ", "") == "") {
                           print("blank screen");
                         } else {
-                          getReciepe(contrl.text);
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: ((context) =>
+                                      search(query: contrl.text))));
                         }
                       },
                       child: Container(
@@ -187,100 +219,181 @@ class _HomeState extends State<Home> {
                       ]),
                 ),
                 Container(
-                  height: 100,
                   // building a listview builder
-                  child: ListView.builder(
-                    physics:
-                        NeverScrollableScrollPhysics(), // it set that this is not permitted to not get scroll on its own
-                    itemCount: reciepeList.length, // how many items
-                    shrinkWrap:
-                        true, // it is important because When you set the shrinkWrap property of a scrolling widget to true, it indicates that the scrollable widget should only take up as much space as needed to display its content without any extra empty space. In other words, the scrollable widget "shrinks" to fit its content, and it won't take up more space than necessary. other wise it will take the size of its parent
-                    itemBuilder: (context, index) {
-                      return InkWell(
-                        onTap: () {},
-                        child: Card(
-                          margin: EdgeInsets.all(20),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                          elevation: 0.0,
-                          child: Stack(
-                            children: [
-                              ClipRRect(
-                                // Card widget in Flutter takes the size of its child content, but it's important to clarify what that means. The Card widget itself does not automatically determine the size of its child content; rather, the child content determines the size of the Card.
-                                borderRadius: BorderRadius.circular(10.0),
-                                child: Image.network(
-                                  reciepeList[index].appImageurl.toString(),
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                  height: 200,
+
+                // bool_var ? true : false 
+                  child: isloading
+                      ? const CircularProgressIndicator()
+                      : ListView.builder(
+                          physics:
+                              NeverScrollableScrollPhysics(), // it set that this is not permitted to not get scroll on its own
+                          itemCount: reciepeList.length, // how many items
+                          shrinkWrap:
+                              true, // it is important because When you set the shrinkWrap property of a scrolling widget to true, it indicates that the scrollable widget should only take up as much space as needed to display its content without any extra empty space. In other words, the scrollable widget "shrinks" to fit its content, and it won't take up more space than necessary. other wise it will take the size of its parent
+                          itemBuilder: (context, index) {
+                            return InkWell(
+                              onTap: () {
+                                // when user touch this function will run 
+                                Navigator.push(context, MaterialPageRoute(builder: (context)=>RecipeView(url: reciepeList[index].appUrl)));
+                              },
+                              child: Card( // inkwell child get the onTap function
+                                clipBehavior: Clip.antiAlias,
+                                margin: EdgeInsets.all(20),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                                elevation: 0.0,
+                                child: Stack(
+                                  children: [
+                                    ClipRRect(
+                                      // Card widget in Flutter takes the size of its child content, but it's important to clarify what that means. The Card widget itself does not automatically determine the size of its child content; rather, the child content determines the size of the Card.
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      child: Image.network(
+                                        reciepeList[index]
+                                            .appImageurl
+                                            .toString(),
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                        height: 200,
+                                      ),
+                                    ),
+                                    Positioned(
+                                        right: 0,
+                                        top: 0,
+                                        width: 80,
+                                        height: 40,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.green[400],
+                                            borderRadius:
+                                                const BorderRadius.only(
+                                                    topRight:
+                                                        Radius.circular(10),
+                                                    bottomLeft:
+                                                        Radius.circular(10)),
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              const Icon(
+                                                Icons.local_fire_department,
+                                                size: 18,
+                                              ),
+                                              const SizedBox(
+                                                width: 8,
+                                              ),
+                                              Text(
+                                                reciepeList[index]
+                                                    .appCalories
+                                                    .toString()
+                                                    .substring(0, 6),
+                                                style: const TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: 13,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ],
+                                          ),
+                                        )),
+                                    Positioned(
+                                        left: 0,
+                                        bottom: 0,
+                                        right: 0,
+                                        child: Container(
+                                            decoration: const BoxDecoration(
+                                              color: Colors.black26,
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 5, horizontal: 10),
+                                            child: Row(
+                                              children: [
+                                                Text(
+                                                  reciepeList[index]
+                                                      .label
+                                                      .toString(),
+                                                  style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                              ],
+                                            )))
+                                  ],
                                 ),
                               ),
-                              Positioned(
-                                  right: 0,
-                                  top: 0,
-                                  width: 80,
-                                  height: 40,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.green[400],
-                                      borderRadius: const BorderRadius.only(
-                                          topRight: Radius.circular(10),
-                                          bottomLeft: Radius.circular(10)),
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        const Icon(
-                                          Icons.local_fire_department,
-                                          size: 18,
-                                        ),
-                                        const SizedBox(
-                                          width: 8,
-                                        ),
-                                        Text(
-                                          reciepeList[index]
-                                              .appCalories
-                                              .toString()
-                                              .substring(0, 6),
-                                          style: const TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      ],
-                                    ),
-                                  )),
-                              Positioned(
-                                  left: 0,
-                                  bottom: 0,
-                                  right: 0,
-                                  child: Container(
-                                      decoration: const BoxDecoration(
-                                        color: Colors.black26,
-                                      ),
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 5, horizontal: 10),
-                                      child: Row(
-                                        children: [
-                                          Text(
-                                            reciepeList[index].label.toString(),
-                                            style: const TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ],
-                                      )))
-                            ],
-                          ),
+                            ); // using a custom widget
+                          },
                         ),
-                      ); // using a custom widget
-                    },
-                  ),
                 ),
-                
+                Container(
+                  height:
+                      100, // it is neccassary to define height when you are making horizontal scroll view
+                  child: ListView.builder(
+                      itemCount: reciptCatList.length,
+                      shrinkWrap: true,
+                      scrollDirection:
+                          Axis.horizontal, // make the scroll direction
+                      itemBuilder: (context, index) {
+                        return Container(
+                            child: InkWell(
+                          onTap: () {
+                            // touch gesture 
+                            // heading contain the keyword which is search on api search as normal to the dish search 
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: ((context) =>
+                                      search(query: reciptCatList[index]['heading']))));
+                          },
+                          child: Card(
+                              clipBehavior: Clip
+                                  .antiAlias, // The Clip.antiAlias value is commonly used to achieve smooth and rounded clipping, particularly with widgets that have rounded corners like cards.
+
+                              elevation: 0.0,
+                              margin: const EdgeInsets.all(20),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              child: Stack(
+                                children: [
+                                  ClipRRect(
+                                      borderRadius: BorderRadius.circular(18.0),
+                                      child: Image.network(
+                                        reciptCatList[index]["imgUrl"],
+                                        fit: BoxFit.cover,
+                                        width: 200,
+                                        height: 250,
+                                      )),
+                                  Positioned(
+                                      left: 0,
+                                      right: 0,
+                                      bottom: 0,
+                                      top: 0,
+                                      child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 5, horizontal: 10),
+                                          decoration: const BoxDecoration(
+                                              color: Colors.black26),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                reciptCatList[index]["heading"],
+                                                style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 28),
+                                              ),
+                                            ],
+                                          ))),
+                                ],
+                              )),
+                        ));
+                      }),
+                )
               ],
             ),
           )
