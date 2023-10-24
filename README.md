@@ -1,4 +1,4 @@
-🍽️📱 Just Completed My First Food Recipe App with Flutter! 📱🍽️
+🍽️📱 Just Completed My Food Recipe App with Flutter! 📱🍽️
 
 I'm excited to announce that I've just finished building my very first food recipe app using Flutter, and the journey has been nothing short of amazing. 🚀
 
@@ -28,12 +28,12 @@ I'm excited to share my culinary and app development journey with you, and I loo
 
 #Flutter #FoodRecipeApp #APIs #Learning #MobileAppDevelopment #BeginnerDeveloper #AchievementUnlocked
 
-![food 1](https://github.com/dhrv-sharma/recipe-app/assets/99127279/d3e1b1d4-fc98-48fe-995a-c3b977db1ca4)
 
-![food 2](https://github.com/dhrv-sharma/recipe-app/assets/99127279/4c77d147-74bf-414c-862e-8ccb355cd22c)
-
+![food 1](https://github.com/dhrv-sharma/recipe-app/assets/99127279/40e088a2-beb8-4ef1-b860-661d57d70699)
 
 
+
+![food 2](https://github.com/dhrv-sharma/recipe-app/assets/99127279/5d31df4e-bdc4-4dbe-bcf2-78fca7f8dcb7)
 
 
 
